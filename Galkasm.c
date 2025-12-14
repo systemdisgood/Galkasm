@@ -9,6 +9,8 @@ FILE* input_file = NULL;
 FILE* output_file = NULL;
 
 int input_character = 0;
+unsigned long long input_characters_counter = 0;
+char* input_chars;
 
 int main(int argc, char* argv[])
 {
@@ -55,14 +57,31 @@ int main(int argc, char* argv[])
 
 	while((input_character = fgetc(input_file)) != EOF)
 	{
-		putchar(input_character);
+		//putchar(input_character);
+		++input_characters_counter;
 	}
+
 	if(ferror(input_file))
 	{
 		fprintf(stderr, "Error while trst input file reading\n");
 		return EXIT_FAILURE;
 	}
 
+	fseek(input_file, 0, SEEK_SET);
+	input_chars = (char*)malloc((input_characters_counter + 1) * sizeof(char));
+	if(NULL == input_chars)
+	{
+		printf("Error with input_chars memory allocation\n");
+		return EXIT_FAILURE;
+	}
+	for(unsigned long long fill_input_characters_counter = 0; fill_input_characters_counter < input_characters_counter; ++fill_input_characters_counter)
+	{
+		input_chars[fill_input_characters_counter] = fgetc(input_file);
+	}
+	input_chars[input_characters_counter] = '\0';
+	printf("%s\n", input_chars);
+
+	free(input_chars);
 	fclose(input_file);
 	fclose(output_file);
 
