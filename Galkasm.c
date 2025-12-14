@@ -14,7 +14,7 @@ int input_character = 0;
 unsigned long long input_characters_counter = 0;
 char* input_chars = NULL;
 char* output_chars_ptr = NULL;
-bool data_mem[MAX_DATA_MEM] = {'0'};
+bool data_mem[MAX_DATA_MEM] = {false};
 
 enum CMDS {NOP = 0, SET = 1, TRY = 2, STR = 3, RIN = 4, FAN = 5, RIP = 6, FAP = 7, STP = 8, RES = 9};
 // 0 - nop
@@ -28,7 +28,7 @@ enum CMDS {NOP = 0, SET = 1, TRY = 2, STR = 3, RIN = 4, FAN = 5, RIP = 6, FAP = 
 // 8 - stp
 // 9 - res
 
-void run(char* cmd_chars, char*  output_chars_ptr)
+void run(char* cmd_chars, char**  output_chars_ptr)
 {
 	unsigned long long cmd_char_pos = 0;
 	unsigned long long data_mem_pos = 0;
@@ -44,9 +44,13 @@ void run(char* cmd_chars, char*  output_chars_ptr)
 	bool reg = false;
 	while(!need_to_stop)
 	{
+		getchar();
+		//printf("%d\n", (int)cmd_chars[cmd_char_pos]);
 		if ('\0' == cmd_chars[cmd_char_pos]) cmd_char_pos = 0;
 		if(cmd_chars[cmd_char_pos] >= '1' && cmd_chars[cmd_char_pos] <= '9') cmd = cmd_chars[cmd_char_pos] - '0';
 		else cmd = NOP;
+		printf("%d\n", cmd);
+		
 		switch(cmd)
 		{
 			case NOP:
@@ -85,6 +89,8 @@ void run(char* cmd_chars, char*  output_chars_ptr)
 				step_prev_done = true;
 				break;
 		}
+		
+		printf("data_mem[0] = %d\n", data_mem[0]);
 
 		if(need_to_step_next && !step_next_done)
 		{
@@ -99,21 +105,23 @@ void run(char* cmd_chars, char*  output_chars_ptr)
 		}
 
 		if(max_data_mem_poses < (data_mem_pos + 1)) max_data_mem_poses = data_mem_pos + 1;
+		
+		++cmd_char_pos;
 	}
 
 	output_chars_quantity = max_data_mem_poses * 3 +1; // bit (0 or 1), \r\n and \0 in the end
-	output_chars_ptr = (char*)malloc(sizeof(char) *  output_chars_quantity);
-	printf("Error, bad output_chars_ptr allocation\n");
+	(*output_chars_ptr) = (char*)malloc(sizeof(char) *  output_chars_quantity);
+	if(NULL == output_chars_ptr) printf("Error, bad output_chars_ptr allocation\n");
 	for(unsigned long long output_data_counter = 0; output_data_counter < max_data_mem_poses; ++output_data_counter)
 	{
-		output_chars_ptr[output_chars_counter] = data_mem[output_data_counter] ? '1' : '0';
+		(*output_chars_ptr)[output_chars_counter] = data_mem[output_data_counter] ? '1' : '0';
 		++output_chars_counter;
-		output_chars_ptr[output_chars_counter] = '\r';
+		(*output_chars_ptr)[output_chars_counter] = '\r';
 		++output_chars_counter;
-		output_chars_ptr[output_chars_counter] = '\n';
+		(*output_chars_ptr)[output_chars_counter] = '\n';
 		++output_chars_counter;
 	}
-	output_chars_ptr[output_chars_counter] = '\0';
+	(*output_chars_ptr)[output_chars_counter] = '\0';
 }
 
 int main(int argc, char* argv[])
@@ -185,9 +193,10 @@ int main(int argc, char* argv[])
 	input_chars[input_characters_counter] = '\0';
 	printf("%s\n", input_chars);
 
-	if(RUN == program_run_target) run(input_chars, output_chars_ptr);
+	if(RUN == program_run_target) run(input_chars, &output_chars_ptr);
 
 	fprintf(output_file, "%s", output_chars_ptr);
+	printf("%s\n", output_chars_ptr);
 	free(output_chars_ptr);
 	free(input_chars);
 	fclose(input_file);
