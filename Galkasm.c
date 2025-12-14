@@ -16,17 +16,17 @@ char* input_chars = NULL;
 char* output_chars_ptr = NULL;
 bool data_mem[MAX_DATA_MEM] = {false};
 
-enum CMDS {NOP = 0, SET = 1, TRY = 2, STR = 3, RIN = 4, FAN = 5, RIP = 6, FAP = 7, STP = 8, RES = 9};
+enum CMDS {NOP = 0, RES = 1, SET = 2, TRY = 3, STR = 4, RIN = 5, FAN = 6, RIP = 7, FAP = 8, STP = 9};
 // 0 - nop
-// 1 - set
-// 2 - try
-// 3 - str
-// 4 - rin
-// 5 - fan
-// 6 - rip
-// 7 - fap
-// 8 - stp
-// 9 - res
+// 1 - res
+// 2 - set
+// 3 - try
+// 4 - str 
+// 5 - rin
+// 6 - fan
+// 7 - rip
+// 8 - fap
+// 9 - stp
 
 void run(char* cmd_chars, char**  output_chars_ptr)
 {
@@ -44,12 +44,12 @@ void run(char* cmd_chars, char**  output_chars_ptr)
 	bool reg = false;
 	while(!need_to_stop)
 	{
-		getchar();
+		//getchar();
 		//printf("%d\n", (int)cmd_chars[cmd_char_pos]);
 		if ('\0' == cmd_chars[cmd_char_pos]) cmd_char_pos = 0;
 		if(cmd_chars[cmd_char_pos] >= '1' && cmd_chars[cmd_char_pos] <= '9') cmd = cmd_chars[cmd_char_pos] - '0';
 		else cmd = NOP;
-		printf("%d\n", cmd);
+		//printf("%d\n", cmd);
 		
 		switch(cmd)
 		{
@@ -90,7 +90,6 @@ void run(char* cmd_chars, char**  output_chars_ptr)
 				break;
 		}
 		
-		printf("data_mem[0] = %d\n", data_mem[0]);
 
 		if(need_to_step_next && !step_next_done)
 		{
@@ -111,7 +110,7 @@ void run(char* cmd_chars, char**  output_chars_ptr)
 
 	output_chars_quantity = max_data_mem_poses * 3 +1; // bit (0 or 1), \r\n and \0 in the end
 	(*output_chars_ptr) = (char*)malloc(sizeof(char) *  output_chars_quantity);
-	if(NULL == output_chars_ptr) printf("Error, bad output_chars_ptr allocation\n");
+	if(NULL == output_chars_ptr) fprintf(stderr, "Error, bad output_chars_ptr allocation\n");
 	for(unsigned long long output_data_counter = 0; output_data_counter < max_data_mem_poses; ++output_data_counter)
 	{
 		(*output_chars_ptr)[output_chars_counter] = data_mem[output_data_counter] ? '1' : '0';
@@ -183,7 +182,7 @@ int main(int argc, char* argv[])
 	input_chars = (char*)malloc((input_characters_counter + 1) * sizeof(char));
 	if(NULL == input_chars)
 	{
-		printf("Error with input_chars memory allocation\n");
+		fprintf(stderr, "Error with input_chars memory allocation\n");
 		return EXIT_FAILURE;
 	}
 	for(unsigned long long fill_input_characters_counter = 0; fill_input_characters_counter < input_characters_counter; ++fill_input_characters_counter)
@@ -191,12 +190,12 @@ int main(int argc, char* argv[])
 		input_chars[fill_input_characters_counter] = fgetc(input_file);
 	}
 	input_chars[input_characters_counter] = '\0';
-	printf("%s\n", input_chars);
+	//printf("%s\n", input_chars);
 
 	if(RUN == program_run_target) run(input_chars, &output_chars_ptr);
 
 	fprintf(output_file, "%s", output_chars_ptr);
-	printf("%s\n", output_chars_ptr);
+	//printf("%s\n", output_chars_ptr);
 	free(output_chars_ptr);
 	free(input_chars);
 	fclose(input_file);
