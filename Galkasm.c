@@ -5,6 +5,7 @@
 #define MAX_TOKEN_LEN 0x7F
 #define MAX_DATA_MEM 0x3FFFFFFF
 
+
 enum PROGRAM_RUN_TARGETS {IDLE, RUN, COMPILE};
 int program_run_target = IDLE;
 FILE* input_file = NULL;
